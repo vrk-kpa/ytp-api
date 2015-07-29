@@ -1,14 +1,14 @@
 
 # Avoindata.fi API
 
-This repository includes documentation and examples on how to use the API of Avoindata.fi/Opendata.fi (or Yhteentoimivuuspalvelut more broadly). The web service uses [CKAN](http://ckan.org/) platform to provide a metadata catalog of open datasets. With the API, you can add and retrieve datasets.
+This repository includes documentation and examples on how to use the API of [Avoindata.fi/Opendata.fi](avoindata) (or Yhteentoimivuuspalvelut more broadly). The web service uses [CKAN](http://ckan.org/) platform to provide a metadata catalog of open datasets. With the API, you can add and retrieve datasets.
 
 In the CKAN data model, *users* and *datasets* belong to *organizations*. Organizations own datasets and mandate permissions. Datasets are metadata, describing a single, logical set of open data. A dataset has one or more *resource*, which are either files on the server or external links that contain the data itself.
 
-The following code examples are provided here:
+The following code examples are provided under `examples/`:
 
-* **examples/avoindata_ckanapi.py:** A Python example that uses the [ckanapi][ckanapilib] library in making the requests. If you are using Python, it is advisable to use this library.
-* **examples/avoindata_rawhttp.py:** A low-level Python example that uses the [requests][requests] library in making pure HTTP requests. If you need to form the HTTP requests by yourself for some reason (e.g. you use another language that does not have a CKAN API library), this example gives you some basic pointers.
+* **[avoindata_ckanapi.py](examples/avoindata_ckanapi.py):** A Python example that uses the [ckanapi][ckanapilib] library in making the requests. If you are using Python, it is advisable to use this library.
+* **[avoindata_rawhttp.py](examples/avoindata_rawhttp.py):** A low-level Python example that uses the [requests][requests] library in making pure HTTP requests. If you need to form the HTTP requests by yourself for some reason (e.g. you use another language that does not have a CKAN API library), this example gives you some basic pointers.
 
 ## Getting started
 

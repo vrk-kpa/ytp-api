@@ -1,7 +1,7 @@
 
 # Avoindata.fi API
 
-This repository provides documentation on using the API of [Avoindata.fi/Opendata.fi][avoindata] (or Yhteentoimivuuspalvelut more broadly). Avoindata.fi is built on top of [CKAN](http://ckan.org/) platform, and provides a metadata catalog of Finnish open datasets. With the Avoindata API, you can retrieve and manager datasets with your own programs.
+This repository provides documentation on using the API of [Avoindata.fi/Opendata.fi][avoindata] (or Yhteentoimivuuspalvelut more broadly). Avoindata.fi is built on top of [CKAN](http://ckan.org/) platform, and provides a metadata catalog of Finnish open datasets. With the Avoindata API, you can retrieve and manage datasets with your own programs.
 
 In the CKAN data model, *users* and *datasets* belong to *organizations*. Organizations own datasets and mandate permissions. Datasets are metadata, describing a single, logical set of open data. A dataset has one or more *resource*, which are either files on the server or external links that contain the data itself.
 

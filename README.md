@@ -1,7 +1,7 @@
 
 # Avoindata.fi API
 
-This repository provides documentation on using the API of [Avoindata.fi/Opendata.fi](avoindata) (or Yhteentoimivuuspalvelut more broadly). Avoindata.fi is built on top of [CKAN](http://ckan.org/) platform, and provides a metadata catalog of Finnish open datasets. With the Avoindata API, you can retrieve and manager datasets with your own programs.
+This repository provides documentation on using the API of [Avoindata.fi/Opendata.fi][avoindata] (or Yhteentoimivuuspalvelut more broadly). Avoindata.fi is built on top of [CKAN](http://ckan.org/) platform, and provides a metadata catalog of Finnish open datasets. With the Avoindata API, you can retrieve and manager datasets with your own programs.
 
 In the CKAN data model, *users* and *datasets* belong to *organizations*. Organizations own datasets and mandate permissions. Datasets are metadata, describing a single, logical set of open data. A dataset has one or more *resource*, which are either files on the server or external links that contain the data itself.
 
@@ -53,7 +53,7 @@ As the service is constantly developed, we may make changes to the data schema a
 
 ## Known issues
 
-* Deleting an organization or dataset (organization_delete and package_delete) in CKAN does not actually delete the organization or dataset, but merely changes their state to deleted. Successive creations using the same names will fail, complaining that there is already an entity with that name. Deleting them from the Web interface seem to delete them completely.
+* Deleting an organization or dataset (`organization_delete` and `package_delete`) in CKAN does not actually delete the organization or dataset, but merely changes their state to deleted. Successive creations using the same names will fail, complaining that there is already an entity with that name. Deleting them from the Web interface seem to delete them completely.
 * Some methods may falsely return a 405 Not Allowed, for example when requesting for the details of a dataset that does not exist.
 * As the server is HTTPS-only, you might run into problems with certificates. Either upgrade to Python 2.7.9, install pyopenssl or do not verify certificates.
 
@@ -76,6 +76,6 @@ If you are having trouble with our API, create an [issue at Github](https://gith
 [avoindata]: https://avoindata.fi
 [avoindatabeta]: https://beta.avoindata.fi
 [ckanapidocs]: http://docs.ckan.org/en/latest/api/index.html
-[ckanapilib]: https://github.com/okfn/ckanapi
+[ckanapilib]: https://github.com/ckan/ckanapi
 [requests]: http://requests.readthedocs.org/en/latest/
 [otherclients]: http://docs.ckan.org/en/ckan-1.7.1/api.html#clients

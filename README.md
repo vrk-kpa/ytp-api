@@ -1,7 +1,7 @@
 
 # Avoindata.fi API
 
-This repository includes documentation and examples on how to use the API of [Avoindata.fi/Opendata.fi](avoindata) (or Yhteentoimivuuspalvelut more broadly). The web service uses [CKAN](http://ckan.org/) platform to provide a metadata catalog of open datasets. With the API, you can add and retrieve datasets.
+This repository provides documentation on using the API of [Avoindata.fi/Opendata.fi](avoindata) (or Yhteentoimivuuspalvelut more broadly). Avoindata.fi is built on top of [CKAN](http://ckan.org/) platform, and provides a metadata catalog of Finnish open datasets. With the Avoindata API, you can retrieve and manager datasets with your own programs.
 
 In the CKAN data model, *users* and *datasets* belong to *organizations*. Organizations own datasets and mandate permissions. Datasets are metadata, describing a single, logical set of open data. A dataset has one or more *resource*, which are either files on the server or external links that contain the data itself.
 
@@ -61,7 +61,7 @@ As the service is constantly developed, we may make changes to the data schema a
 
 Any data you import/create into the development version of the service (beta.avoindata.fi) can be lost without notice at any time.
 
-Furthermore, new software is deployed weekly (sometimes several times per day) to the servers from the master branch, so it is excepted that the server is occasionally down and that things will break. However, in general, the API should be much more stable than the web interface. If you want a more mature and stable, but more generic CKAN playground, you can also try using the [API](http://demo.ckan.org/api) of the [CKAN demo instance](http://demo.ckan.org).
+Furthermore, new software is deployed weekly (sometimes several times per day) to the servers from the master branch, so it is expected that the server is occasionally down and that things will break. However, in general, the API should be much more stable than the web interface. If you want a more mature and stable, but more generic CKAN playground, you can also try using the [API](http://demo.ckan.org/api) of the [CKAN demo instance](http://demo.ckan.org).
 
 ## Help and support
 

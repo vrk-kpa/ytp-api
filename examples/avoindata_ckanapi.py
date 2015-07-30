@@ -31,19 +31,19 @@ class AvoindataApiTester:
         print json.dumps(data, sort_keys=True, indent=2)
 
     def list_organizations(self):
-        print "\nGet all organizations (showing only 10 first here):"
+        print "\nList all organizations (showing only 10 first here):"
         all_organizations = self.api.action.organization_list()
         self._json_print(all_organizations[:10])
+
+    def list_datasets(self, limit=10):
+        print "\nList the first {} datasets:".format(limit)
+        datasets = self.api.action.package_list(limit=limit, offset=0)
+        self._json_print(datasets)
 
     def get_organization(self, organization_id):
         print "\nGet details of organization '{}':".format(organization_id)
         organization = self.api.action.organization_show(id=organization_id)
         self._json_print(organization)
-
-    def get_datasets(self, limit=10):
-        print "\nGet the first {} datasets:".format(limit)
-        datasets = self.api.action.package_list(limit=limit, offset=0)
-        self._json_print(datasets)
 
     def get_dataset(self, dataset_id):
         print "\nGet details of dataset '{}':".format(dataset_id)
@@ -112,13 +112,14 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 3:
         print usage
-        sys.exit()
+        sys.exit(1)
 
     apitest = AvoindataApiTester(sys.argv[1], sys.argv[2])
 
     apitest.list_organizations()
     apitest.get_organization('helsinki')
-    apitest.get_datasets(10)
+    apitest.list_datasets(10)
+    apitest.get_dataset('valtion-budjettitalous')
 
     org_id = apitest.create_test_organization()
 

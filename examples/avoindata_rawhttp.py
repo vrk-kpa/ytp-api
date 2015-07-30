@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-This script is an example on how to use the CKAN API of Avoindata.fi.
-Refer to http://docs.ckan.org/en/latest/api/index.html for further info on how to use the CKAN API.
+This is a short example on using the CKAN API of Avoindata.fi
+For the CKAN API in general, see http://docs.ckan.org/en/latest/api/index.html
 The older docs http://docs.ckan.org/en/ckan-1.7.1/api.html#tools-for-accessing-the-api
 also list some tools and libs for accessing the API.
 """
 
 import logging
+import datetime
 import requests
 import certifi
 import json
@@ -18,6 +19,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
+# Set this to False if you are having problems with the certificate validation
 verify_ssl = certifi.where()
 
 
@@ -41,10 +43,10 @@ def look_for_ckan_api(base_url):
 
     if latest_version == 0:
         log.error("Could not find a valid API from the given URL")
-        sys.exit()
+        sys.exit(1)
     elif latest_version != 3:
         log.warning("Found API version {0}, but version 3 is required for the next actions. Exiting")
-        sys.exit()
+        sys.exit(2)
 
     return base_url + str(latest_version) + "/action/"
 
@@ -56,7 +58,7 @@ def create_organization(organization_name, api_url, api_key):
     log.info("Trying to create organization '{0}' from '{1}'".format(organization_name, request_url))
     request_payload = {
         'name': organization_name,
-        'title': 'AAA Test organization ' + organization_name
+        'title': 'Z CKAN API ' + organization_name
     }
     request_headers = {
         'authorization': api_key,
@@ -75,10 +77,11 @@ def get_organization(organization_name, api_url, api_key):
     request_url = api_url + 'organization_show'
     log.info("Trying to get organization '{0}' from '{1}'".format(organization_name, request_url))
     request_payload = {
-        'id': organization_name,
+        'id': organization_name
     }
     request_headers = {
-        'authorization': api_key
+        'authorization': api_key,
+        'content-type': 'application/json'
     }
 
     r = requests.get(request_url, params=request_payload, headers=request_headers, verify=verify_ssl)
@@ -113,7 +116,7 @@ def create_dataset(dataset_name, organization_name, api_url, api_key):
     log.info("Trying to create dataset '{0}' from '{1}'".format(dataset_name, request_url))
     request_payload = {
         'name': dataset_name,
-        'title': 'AAA Test dataset ' + dataset_name,
+        'title': 'Z ' + dataset_name,
         'owner_org': organization_name,
         'notes': 'A temporary test dataset that can be deleted at any possible time',
         'collection_type': 'Open Data',
@@ -143,7 +146,7 @@ def get_dataset(dataset_name, api_url, api_key):
     request_url = api_url + 'package_show'
     log.info("Trying to get package '{0}' from '{1}'".format(dataset_name, request_url))
     request_payload = {
-        'id': 'kansalliskirjasto-sanomalehtikirjasto-meta'  # dataset_name
+        'id': dataset_name
     }
     request_headers = {
         'authorization': api_key
@@ -189,7 +192,6 @@ def log_response(response):
             log.warning(json.dumps(response.json(), indent=2, sort_keys=True))
         except ValueError:
             log.warning("Not valid JSON: %s\n" % response.text)
-
     return
 
 
@@ -204,7 +206,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 3:
         print usage
-        sys.exit()
+        sys.exit(3)
 
     url_prefix = sys.argv[1] + "/api/"
     api_key = sys.argv[2]
@@ -212,18 +214,13 @@ if __name__ == '__main__':
 
     log.info("Now using API URL " + api_url)
 
-    organization_name = "aaa_org_test"
-    dataset_name = "aaa_set_test"
+    execution_id = "apitest-{:%Y-%m%d-%H%M%S-%f}".format(datetime.datetime.utcnow())
+    organization_name = "z-org-" + execution_id
+    dataset_name = "z-" + execution_id
 
-    log.info("TEST 1")
     create_organization(organization_name, api_url, api_key)
-    log.info("TEST 2")
     get_organization(organization_name, api_url, api_key)
-    log.info("TEST 3")
     create_dataset(dataset_name, organization_name, api_url, api_key)
-    log.info("TEST 4")
     get_dataset(dataset_name, api_url, api_key)
-    log.info("TEST 5")
     delete_dataset(dataset_name, api_url, api_key)
-    log.info("TEST 6")
     delete_organization(organization_name, api_url, api_key)

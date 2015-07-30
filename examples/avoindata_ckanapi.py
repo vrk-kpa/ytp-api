@@ -121,17 +121,17 @@ if __name__ == '__main__':
     apitest.list_datasets(10)
     apitest.get_dataset('valtion-budjettitalous')
 
-    org_id = apitest.create_test_organization()
+    organization_name = apitest.create_test_organization()
 
     # You can also create your datasets to the shared 'private person'
     # Organization instead of creating your own
-    # org_id = 'yksityishenkilo'
+    # organization_name = 'yksityishenkilo'
 
-    apitest.get_organization(org_id)
-    dataset_id = apitest.create_test_dataset(org_id)
-    apitest.get_dataset(dataset_id)
+    apitest.get_organization(organization_name)
+    dataset_name = apitest.create_test_dataset(organization_name)
+    apitest.get_dataset(dataset_name)
 
-    apitest.delete_dataset(dataset_id)
-    apitest.show_dataset_property(dataset_id, 'state')
-    apitest.delete_organization(org_id)
-    apitest.show_organization_property(org_id, 'state')
+    apitest.delete_dataset(dataset_name)
+    apitest.show_dataset_property(dataset_name, 'state')
+    apitest.delete_organization(organization_name)
+    apitest.show_organization_property(organization_name, 'state')

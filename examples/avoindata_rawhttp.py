@@ -19,180 +19,160 @@ logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s')
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-# Set this to False if you are having problems with the certificate validation
-verify_ssl = certifi.where()
 
+class AvoindataRawApiTester:
 
-def look_for_ckan_api(base_url):
-    """Smoke test: Tries to find a valid CKAN API from the given endpoint, and checks it for various versions."""
+    execution_id = ""
+    action_api = ""
+    api_base_url = ""
+    common_headers = None
 
-    latest_version = 0
+    # Set this to False if you are having problems with the certificate validation
+    verify_ssl = certifi.where()
 
-    for version in range(1, 4):
-        try:
-            r = requests.get(base_url + str(version), verify=verify_ssl)
+    def __init__(self, api_prefix_url, api_key):
+        self.execution_id = "apitest-{:%Y-%m%d-%H%M%S-%f}".format(datetime.datetime.utcnow())
+        log.info("All names in these examples are tagged with {}".format(self.execution_id))
+
+        self.api_base_url = api_prefix_url + "/api/"
+        self.common_headers = {
+            'authorization': api_key,
+            'content-type': 'application/json',
+            'user_agent': 'avoindata_ckanapi_example/1.0 ({0})'.format(self.execution_id)
+        }
+
+    def _log_response(self, response):
+        """Try to print the response in JSON or fallback to text"""
+
+        if response.status_code == 200:
+            log.debug(json.dumps(response.json(), indent=2, sort_keys=True))
+            if response.json()['success']:
+                log.info("Success")
+        elif response.status_code == 500:
+            log.error("Server error (status 500)")
+        else:
+            log.warning("Status code: %s" % response.status_code)
             try:
-                if json.dumps(r.json()) == '{{"version": {0}}}'.format(version):
-                    log.debug("API version {0} found".format(version))
-                    latest_version = version
+                log.warning(json.dumps(response.json(), indent=2, sort_keys=True))
             except ValueError:
-                log.warning("Could not parse JSON from the given address")
-        except requests.ConnectionError as e:
-            log.error(e)
-            log.error("Could not connect to given url")
+                log.warning("Not valid JSON: %s\n" % response.text)
 
-    if latest_version == 0:
-        log.error("Could not find a valid API from the given URL")
-        sys.exit(1)
-    elif latest_version != 3:
-        log.warning("Found API version {0}, but version 3 is required for the next actions. Exiting")
-        sys.exit(2)
+    def discover_ckan_api(self):
+        """Smoke test: Tries to find a valid CKAN API from the given endpoint, and checks it for various versions."""
 
-    return base_url + str(latest_version) + "/action/"
+        latest_version = 0
+        for version in range(1, 4):
+            try:
+                r = requests.get(self.api_base_url + str(version), verify=self.verify_ssl)
+                try:
+                    if json.dumps(r.json()) == '{{"version": {0}}}'.format(version):
+                        log.debug("API version {0} found".format(version))
+                        latest_version = version
+                except ValueError:
+                    log.warning("Could not parse JSON from the given address")
+            except requests.ConnectionError as e:
+                log.error(e)
+                log.error("Could not connect to given url")
 
+        if latest_version == 0:
+            log.error("Could not find a valid API from the given URL")
+            sys.exit(2)
+        elif latest_version != 3:
+            log.warning("Found API version {0}, but version 3 is required for the next actions. Exiting")
+            sys.exit(3)
 
-def create_organization(organization_name, api_url, api_key):
-    """Creates an new organization."""
+        self.action_api = self.api_base_url + str(latest_version) + "/action/"
+        log.debug("All API actions will be done to " + self.action_api)
 
-    request_url = api_url + 'organization_create'
-    log.info("Trying to create organization '{0}' from '{1}'".format(organization_name, request_url))
-    request_payload = {
-        'name': organization_name,
-        'title': 'Z CKAN API ' + organization_name
-    }
-    request_headers = {
-        'authorization': api_key,
-        'content-type': 'application/json'
-    }
+    def create_test_organization(self):
+        """Creates an new organization."""
 
-    r = requests.post(request_url, data=json.dumps(request_payload), headers=request_headers, verify=verify_ssl)
-    log_response(r)
+        organization_name = 'z-org-' + self.execution_id
+        url = self.action_api + 'organization_create'
+        log.info("Trying to create organization '{0}' from '{1}'".format(organization_name, url))
+        payload = {
+            'name': organization_name,
+            'title': 'Z CKAN API ' + organization_name
+        }
 
-    return
+        r = requests.post(url, data=json.dumps(payload), headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
+        return organization_name
 
+    def get_organization(self, organization_name):
+        """Retrieves organization"""
 
-def get_organization(organization_name, api_url, api_key):
-    """Retrieves organization"""
+        url = self.action_api + 'organization_show'
+        log.info("Trying to get organization '{0}' from '{1}'".format(organization_name, url))
+        payload = {
+            'id': organization_name
+        }
 
-    request_url = api_url + 'organization_show'
-    log.info("Trying to get organization '{0}' from '{1}'".format(organization_name, request_url))
-    request_payload = {
-        'id': organization_name
-    }
-    request_headers = {
-        'authorization': api_key,
-        'content-type': 'application/json'
-    }
+        # For some reason, this call fails if done as a GET call with URL params. POST can be used here.
+        r = requests.post(url, data=json.dumps(payload), headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
 
-    r = requests.get(request_url, params=request_payload, headers=request_headers, verify=verify_ssl)
-    log_response(r)
+    def delete_organization(self, organization_name):
+        """Removes organization"""
 
-    return
+        url = self.action_api + 'organization_delete'
+        log.info("Trying to delete organization '{0}' from '{1}'".format(organization_name, url))
+        payload = {
+            'id': organization_name,
+        }
 
+        r = requests.post(url, data=json.dumps(payload), headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
 
-def delete_organization(organization_name, api_url, api_key):
-    """Removes organization"""
+    def create_test_dataset(self, organization_name):
+        """Create a dataset"""
 
-    request_url = api_url + 'organization_delete'
-    log.info("Trying to delete organization '{0}' from '{1}'".format(organization_name, request_url))
-    request_payload = {
-        'id': organization_name,
-    }
-    request_headers = {
-        'authorization': api_key,
-        'content-type': 'application/json'
-    }
+        dataset_name = 'z-' + self.execution_id
+        url = self.action_api + 'package_create'
+        log.info("Trying to create dataset '{0}' from '{1}'".format(dataset_name, url))
+        payload = {
+            'name': dataset_name,
+            'title': 'Z ' + dataset_name,
+            'owner_org': organization_name,
+            'notes': 'A temporary test dataset that can be deleted at any possible time',
+            'collection_type': 'Open Data',
+            'content_type': 'paikkatieto, mallintaminen',
+            'license_id': 'cc-by-4.0',
+            'tag_string': 'foo, bar',
+            'extras': [
+                {'key': 'firstkey', 'value': 'firstvalue'},
+                {'key': 'secondkey', 'value': 'secondvalue'},
+                {'key': 'thirdkey', 'value': 'thirdvalue'}
+                ]
+        }
 
-    r = requests.post(request_url, data=json.dumps(request_payload), headers=request_headers, verify=verify_ssl)
-    log_response(r)
+        r = requests.post(url, data=json.dumps(payload), headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
+        return dataset_name
 
-    return
+    def get_dataset(self, dataset_name):
+        """Retrieves dataset"""
 
+        url = self.action_api + 'package_show'
+        log.info("Trying to get package '{0}' from '{1}'".format(dataset_name, url))
+        params = {
+            'id': dataset_name
+        }
 
-def create_dataset(dataset_name, organization_name, api_url, api_key):
-    """Create a dataset"""
+        r = requests.get(url, params=params, headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
 
-    request_url = api_url + 'package_create'
-    log.info("Trying to create dataset '{0}' from '{1}'".format(dataset_name, request_url))
-    request_payload = {
-        'name': dataset_name,
-        'title': 'Z ' + dataset_name,
-        'owner_org': organization_name,
-        'notes': 'A temporary test dataset that can be deleted at any possible time',
-        'collection_type': 'Open Data',
-        'content_type': 'paikkatieto, mallintaminen',
-        'license_id': 'cc-by-4.0',
-        'tag_string': 'foo, bar',
-        'extras': [
-            {'key': 'firstkey', 'value': 'firstvalue'},
-            {'key': 'secondkey', 'value': 'secondvalue'},
-            {'key': 'thirdkey', 'value': 'thirdvalue'}
-            ]
-    }
-    request_headers = {
-        'authorization': api_key,
-        'content-type': 'application/json'
-    }
+    def delete_dataset(self, dataset_name):
+        """Removes dataset"""
 
-    r = requests.post(request_url, data=json.dumps(request_payload), headers=request_headers, verify=verify_ssl)
-    log_response(r)
+        url = self.action_api + 'package_delete'
+        log.info("Trying to delete dataset '{0}' from '{1}'".format(dataset_name, url))
+        payload = {
+            'id': dataset_name,
+        }
 
-    return
-
-
-def get_dataset(dataset_name, api_url, api_key):
-    """Retrieves dataset"""
-
-    request_url = api_url + 'package_show'
-    log.info("Trying to get package '{0}' from '{1}'".format(dataset_name, request_url))
-    request_payload = {
-        'id': dataset_name
-    }
-    request_headers = {
-        'authorization': api_key
-    }
-
-    r = requests.get(request_url, params=request_payload, headers=request_headers, verify=verify_ssl)
-    log_response(r)
-
-    return
-
-
-def delete_dataset(dataset_name, api_url, api_key):
-    """Removes dataset"""
-
-    request_url = api_url + 'package_delete'
-    log.info("Trying to delete dataset '{0}' from '{1}'".format(dataset_name, request_url))
-    request_payload = {
-        'id': dataset_name,
-    }
-    request_headers = {
-        'authorization': api_key,
-        'content-type': 'application/json'
-    }
-
-    r = requests.post(request_url, data=json.dumps(request_payload), headers=request_headers, verify=verify_ssl)
-    log_response(r)
-
-    return
-
-
-def log_response(response):
-    """Try to print the response in JSON or fallback to text"""
-
-    if response.status_code == 200:
-        log.debug(json.dumps(response.json(), indent=2, sort_keys=True))
-        if response.json()['success']:
-            log.info("Success")
-    elif response.status_code == 500:
-        log.error("Server error (status 500)")
-    else:
-        log.warning("Status code: %s" % response.status_code)
-        try:
-            log.warning(json.dumps(response.json(), indent=2, sort_keys=True))
-        except ValueError:
-            log.warning("Not valid JSON: %s\n" % response.text)
-    return
+        r = requests.post(url, data=json.dumps(payload), headers=self.common_headers, verify=self.verify_ssl)
+        self._log_response(r)
 
 
 if __name__ == '__main__':
@@ -206,21 +186,20 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 3:
         print usage
-        sys.exit(3)
+        sys.exit(1)
 
-    url_prefix = sys.argv[1] + "/api/"
-    api_key = sys.argv[2]
-    api_url = look_for_ckan_api(url_prefix)
+    apitest = AvoindataRawApiTester(sys.argv[1], sys.argv[2])
+    apitest.discover_ckan_api()
 
-    log.info("Now using API URL " + api_url)
+    organization_name = apitest.create_test_organization()
 
-    execution_id = "apitest-{:%Y-%m%d-%H%M%S-%f}".format(datetime.datetime.utcnow())
-    organization_name = "z-org-" + execution_id
-    dataset_name = "z-" + execution_id
+    # You can also create your datasets to the shared 'private person'
+    # Organization instead of creating your own
+    # organization_name = 'yksityishenkilo'
 
-    create_organization(organization_name, api_url, api_key)
-    get_organization(organization_name, api_url, api_key)
-    create_dataset(dataset_name, organization_name, api_url, api_key)
-    get_dataset(dataset_name, api_url, api_key)
-    delete_dataset(dataset_name, api_url, api_key)
-    delete_organization(organization_name, api_url, api_key)
+    apitest.get_organization(organization_name)
+    dataset_name = apitest.create_test_dataset(organization_name)
+    apitest.get_dataset(dataset_name)
+
+    apitest.delete_dataset(dataset_name)
+    apitest.delete_organization(organization_name)

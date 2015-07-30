@@ -42,9 +42,11 @@ In CKAN, groups and organizations are slightly different from each other (see [s
 
 ### Name vs. id vs. title
 
-CKAN has three different name-like variables for organizations and datasets. An *id* is a random uuid4 that is used to point to a specific object in the database. A *title* is the human-readable name of the dataset or organization. A *name* is a developer-friendly id for an organization or dataset and must consist of alphanumeric character, dashes and underscores. A name must be unique, and when using the web interface, the name is automatically derived from the title.
+CKAN has three different name-like variables for organizations and datasets. An *id* is a random uuid4 that is used to point to a specific object in the database. A *title* is the human-readable title of the dataset or organization. A *name* is a developer-friendly identificator for an organization or dataset and must consist of alphanumeric character, dashes and underscores.
 
-Many API functions take an *id* as a parameter, but most of the time this actually (and a bit confusingly) means *id-or-name*. Thus unless you really specifically want to, you can use the *name* attribute and pass it to functions like organization_show.
+A name must be unique, and when using the web interface, the name is automatically derived from the title. The name appears in URLs, while the title is shown in the web interface.
+
+Many API functions take an *id* as a parameter, but most of the time this actually (and a bit confusingly) means *either-id-or-name*. Unless you really specifically want to, you can use the *name* attribute and pass it to functions like `organization_show`.
 
 ### Required attributes of a new dataset
 
@@ -53,7 +55,8 @@ As the service is constantly developed, we may make changes to the data schema a
 ## Known issues
 
 * Deleting an organization or dataset (`organization_delete` and `package_delete`) in CKAN does not actually delete the organization or dataset, but merely changes their state to deleted. Successive creations using the same names will fail, complaining that there is already an entity with that name. Deleting them from the Web interface seem to delete them completely.
-* Some methods may falsely return a 405 Not Allowed, for example when requesting for the details of a dataset that does not exist.
+* Some actions may falsely return a *405 Not Allowed*, for example when requesting for the details of a dataset that does not exist.
+* Some get actions (e.g. `organization_show`) may return *400 No request body data* when requested with HTTP GET with URL parameters. You should instead send a HTTP POST with body payload.
 * As the server is HTTPS-only, you might run into problems with certificates. Either upgrade to Python 2.7.9, install pyopenssl or do not verify certificates.
 
 ## Disclaimer

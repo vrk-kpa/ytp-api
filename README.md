@@ -25,8 +25,7 @@ Install the prerequisites for the code examples. On Ubuntu/Debian systems:
     cd ytp-api
     virtualenv env-avoindata
     source env-avoindata/bin/activate
-    pip install pyopenssl ndg-httpsclient pyasn1 certifi
-    pip install requests ckanapi
+    pip install -r examples/requirements.txt
 
 To try out the examples, run the scripts using your API key:
 
@@ -72,6 +71,12 @@ If you are having trouble with our API, create an [issue at Github](https://gith
 * [CKAN API documentation][ckanapidocs]
 * [CKAN API client library and CLI][ckanapilib]
 * [CKAN API client libraries in other languages (old docs, possibly obsolete)][otherclients]
+
+## Copying and License
+
+This API documentation and examples are copyright (c) 2013-2015 Valtori Government ICT Centre, Finland.
+
+It is open and licensed under the MIT License.
 
 [avoindata]: https://avoindata.fi
 [avoindatabeta]: https://beta.avoindata.fi

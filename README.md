@@ -34,6 +34,13 @@ To try out the examples, run the scripts using your API key:
 
 ## Using the API
 
+All the available API actions are listed in the [CKAN API reference][ckanapidocsaction]. To get you started, here are some GET examples that do not require an API key:
+
+- List of datasets: [package_list?limit=20](https://beta.opendata.fi/data/api/3/action/package_list?limit=20)
+- Details of a single dataset: [package_show?id=valtion-budjettitalous](https://beta.opendata.fi/data/api/3/action/package_show?id=valtion-budjettitalous)
+- List of organization names: [organization_list](https://beta.opendata.fi/data/api/3/action/organization_list)
+- Details of a single organization: See known issues, you need a tool to make a HTTP POST request
+
 ### Dataset vs. package and organization vs. group
 
 In the (newer) user interface of CKAN, a dataset is called a *dataset*, while in the codebase and the API it is mostly called a *package*. These terms mean the same thing.
@@ -84,6 +91,7 @@ It is open and licensed under the MIT License.
 [avoindata]: https://avoindata.fi
 [avoindatabeta]: https://beta.avoindata.fi
 [ckanapidocs]: http://docs.ckan.org/en/latest/api/index.html
+[ckanapidocsaction]: http://docs.ckan.org/en/latest/api/index.html#action-api-reference
 [ckanapilib]: https://github.com/ckan/ckanapi
 [requests]: http://requests.readthedocs.org/en/latest/
 [otherclients]: http://docs.ckan.org/en/ckan-1.7.1/api.html#clients

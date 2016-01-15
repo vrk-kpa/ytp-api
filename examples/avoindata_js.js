@@ -8,13 +8,14 @@ This example displays output via console.log(). See your browser's developer too
 */
 
 // Set constants
-var base_url = ''; // ie. 'https://beta.avoindata.fi'
-var api_key = ''; // log in and see your profile page for your API key
+var base_url = 'https://beta.avoindata.fi'; // ie. 'https://beta.avoindata.fi'
+var api_key = '460067a7-6a8a-4acc-bb34-d6df9ba1ab44'; // log in and see your profile page for your API key
 
-// These actions run asynchronously.
-// If your actions depend on each other, you could use callback chains or jQuery queue.
+// These actions run asynchronously
 organization_list(base_url);
-create_test_organization(base_url, api_key);
+
+// If your actions depend on each other, you should use a callback chain (or jQuery queue).
+create_and_delete_test_organization(base_url, api_key);
 
 // Helper function to handle XMLHttpRequests.
 // base_url: ie. 'https://beta.avoindata.fi'
@@ -58,9 +59,10 @@ function organization_list(base_url) {
   });  
 }
 
-// Example of an action with authorization and payload
-// Creates an organization with unique name
-function create_test_organization(base_url, api_key) {
+// Example of actions with authorization and payload
+// Example of callback chaining
+// Creates an organization with unique name and deletes it
+function create_and_delete_test_organization(base_url, api_key) {
   var organization_name = "z-org-apitest-" + Date.now() // API call fails if name is not unique
   var payload = JSON.stringify({
     'name': organization_name,
@@ -68,5 +70,11 @@ function create_test_organization(base_url, api_key) {
   });
   callAPI(base_url, api_key, 'organization_create', payload, function(data) {
     console.log('*** Created test organization ' + organization_name + ' ***');
+    var payload = JSON.stringify({
+      'id': organization_name
+    });
+    callAPI(base_url, api_key, 'organization_delete', payload, function(data) {
+      console.log('*** Deleted test organization ' + organization_name + ' ***');
+    });
   });
 }

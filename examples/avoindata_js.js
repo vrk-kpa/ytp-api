@@ -8,8 +8,8 @@ This example displays output via console.log(). See your browser's developer too
 */
 
 // Set constants
-var base_url = 'https://beta.avoindata.fi'; // ie. 'https://beta.avoindata.fi'
-var api_key = '460067a7-6a8a-4acc-bb34-d6df9ba1ab44'; // log in and see your profile page for your API key
+var base_url = ''; // ie. 'https://beta.avoindata.fi'
+var api_key = ''; // log in and see your profile page for your API key
 
 // These actions run asynchronously
 organization_list(base_url);

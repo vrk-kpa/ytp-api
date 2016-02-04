@@ -1,0 +1,61 @@
+<!--
+  This is a helper page that gets a list of content types in use at opendata.fi using the CKAN Action API. See https://github.com/yhteentoimivuuspalvelut/ytp-api to learn more about the API.
+-->
+
+<html>
+  <head>
+    <title>Content types</title>
+    <script>
+
+      var base_url = 'https://www.avoindata.fi';
+
+      get_content_types(base_url);
+
+      function callAPI(base_url, api_key, action, payload, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        var url = base_url + '/data/api/3/action/' + action;
+
+        xmlhttp.onreadystatechange = function() {
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            response = JSON.parse(xmlhttp.responseText);
+            if (response.success == true) {
+              callback(response.result);
+            }
+          }
+        }
+        xmlhttp.open('POST', url, true);
+        xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        if (api_key) {
+          xmlhttp.setRequestHeader('X-CKAN-API-KEY', api_key);
+        }
+        if (payload) {
+          xmlhttp.send(payload);
+        }
+        else {
+          xmlhttp.send();
+        }
+      }
+
+      function get_content_types(base_url) {
+        var payload = JSON.stringify({
+          'facet.field': '["vocab_content_type"]',
+          'facet.limit': '-1',
+          'rows': 0
+        });
+        callAPI(base_url, null, 'package_search', payload, function(data) {
+          var ordered_data = {};
+          Object.keys(data.facets.vocab_content_type).sort().forEach(function(key) {
+            ordered_data[key] = data.facets.vocab_content_type[key];
+          });
+
+          var result = JSON.stringify(ordered_data);
+          result = result.substring(1, result.length-1).replace(/,/g, '<br>');
+          document.write(result);
+        });
+      }
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

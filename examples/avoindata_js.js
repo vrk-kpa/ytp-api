@@ -13,6 +13,7 @@ var api_key = ''; // log in and see your profile page for your API key
 
 // These actions run asynchronously
 organization_list(base_url);
+get_content_types(base_url);
 
 // If your actions depend on each other, you should use a callback chain (or jQuery queue).
 create_and_delete_test_organization(base_url, api_key);
@@ -57,6 +58,32 @@ function organization_list(base_url) {
       console.log(data[i]);
     }
   });  
+}
+
+// Example of an action call using package_search action
+// Prints all content types in use and the number of packages using them to console.log()
+function get_content_types(base_url) {
+  var payload = JSON.stringify({
+    'facet.field': '["vocab_content_type"]',
+    'facet.limit': '-1', // Show all content types
+    'rows': 0 // Don't show any packages, just the content types
+  });
+  callAPI(base_url, null, 'package_search', payload, function(data) {
+
+    // Order keys alphabetically to make the list easier to read
+    var ordered_data = {};
+    Object.keys(data.facets.vocab_content_type).sort().forEach(function(key) {
+      ordered_data[key] = data.facets.vocab_content_type[key];
+    });
+
+    // Split by keys to make the list easier to read
+    var result = JSON.stringify(ordered_data);
+    result = result.substring(1, result.length-1).split(',');
+    console.log("*** List all content types in use ***");
+    for (var i = 0; i < result.length; i++) {
+      console.log(result[i]);
+    }
+  });
 }
 
 // Example of actions with authorization and payload
